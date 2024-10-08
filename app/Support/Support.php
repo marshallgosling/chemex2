@@ -349,31 +349,45 @@ class Support
         $device_record = DeviceRecord::where('id', $device_id)->first();
         if (!empty($device_record)) {
             $return = [
-                'name' => $device_record->asset_number,
+                'name' => trans('main.part'),//$device_record->asset_number,
                 'children' => [
-                    [
-                        'name' => trans('main.part'),
-                        'children' => [],
-                    ],
-                    [
-                        'name' => trans('main.software'),
-                        'children' => [],
-                    ],
-                    [
-                        'name' => trans('main.service'),
-                        'children' => [],
-                    ],
+                    // [
+                    //     'name' => trans('main.part'),
+                    //     'children' => [],
+                    // ],
+                    // [
+                    //     'name' => trans('main.software'),
+                    //     'children' => [],
+                    // ],
+                    // [
+                    //     'name' => trans('main.service'),
+                    //     'children' => [],
+                    // ],
                 ],
             ];
+
+            //dd($device_record->part);
+            $categories = PartCategory::pluck('name', 'id')->toArray();
+            $data = []; $idx=0;
             foreach ($device_record->part as $part) {
-                $return['children'][0]['children'][] = ['name' => $part->asset_number];
+                if(!array_key_exists($part->category_id, $data))
+                {
+                    $data[$part->category_id] = $idx++;
+                    $return['children'][] = ['name' => $categories[$part->category_id], 'children' => []];
+                }
+
+                $key = $data[$part->category_id];
+                $return['children'][$key]['children'][] = ['name' => $part->asset_number.':'.$part->sn];
             }
-            foreach ($device_record->software as $software) {
-                $return['children'][1]['children'][] = ['name' => $software->name];
-            }
-            foreach ($device_record->service as $service) {
-                $return['children'][2]['children'][] = ['name' => $service->name];
-            }
+            // foreach ($device_record->part as $part) {
+            //     $return['children'][0]['children'][] = ['name' => $part->asset_number];
+            // }
+            // foreach ($device_record->software as $software) {
+            //     $return['children'][1]['children'][] = ['name' => $software->name];
+            // }
+            // foreach ($device_record->service as $service) {
+            //     $return['children'][2]['children'][] = ['name' => $service->name];
+            // }
         }
 
         return json_encode($return);
