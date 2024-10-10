@@ -21,6 +21,7 @@
 
 use App\Models\User;
 use App\Support\Site;
+use Dcat\Admin\Admin;
 use Dcat\Admin\Layout\Navbar;
 
 $site = new Site();
@@ -37,6 +38,7 @@ $script = <<<JS
          }
       })
 JS;
+
 Admin::script($script);
 // 获取当前用户的通知
 $user = User::where('id', auth('admin')->id())->first();
